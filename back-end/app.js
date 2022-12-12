@@ -3,22 +3,34 @@ const app = express();
 const port = 3000;
 const cors = require('cors');
 const multer = require('multer');
+const { v4: uuidv4 } = require('uuid');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, './images');
   },
   filename: (req, file, cb) => {
-    cb(null, `${Date.now()}--${file.originalname}`);
+    const fileName = file.originalname.toLowerCase().split(' ').join('-');
+    cb(null, uuidv4() + '-' + fileName);
   }
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 2000000
+  },
+  fileFilter(req, file, cb) {
+    if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+      return cb(new Error('Please upload a valid image file'));
+    }
+    cb(undefined, true);
+  }
+});
 
 app.use(cors());
 
 app.post('/image', upload.single('file'), function (req, res) {
-  console.log(req.file);
   if (!req.file) {
     console.log('No file received');
     return res.send({
@@ -27,7 +39,8 @@ app.post('/image', upload.single('file'), function (req, res) {
   } else {
     console.log('file received');
     return res.send({
-      success: true
+      success: true,
+      filename: req.file.filename
     });
   }
 });

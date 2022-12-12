@@ -1,17 +1,35 @@
 import React from 'react';
-function App() {
+import axios from 'axios';
+import { useQuery } from '@tanstack/react-query';
+
+const SuccessfullyUploaded = ({
+  fileName
+}: {
+  fileName: string;
+}): JSX.Element => {
+  const { data, isLoading } = useQuery(['image'], async () => {
+    const image = axios.get(`${window.location.href}${fileName}`);
+
+    return image;
+  });
+  return <div>Uploaded Succesfully</div>;
+};
+
+const App = (): JSX.Element => {
   const [image, setImage] = React.useState({ preview: '', data: '' });
+  const [fileName, setFileName] = React.useState('');
   const [status, setStatus] = React.useState('');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     let formData = new FormData();
     formData.append('file', image.data);
-    const response = await fetch('http://localhost:3000/image', {
-      method: 'POST',
-      body: formData
-    });
-    if (response) setStatus(response.statusText);
+    const res = await axios.post('http://localhost:3000/image', formData);
+
+    if (res.statusText === 'OK') {
+      setStatus(res.statusText);
+      setFileName(res.data.filename);
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent) => {
@@ -26,7 +44,8 @@ function App() {
     setImage(img);
   };
 
-  console.log(image);
+  if (status === 'OK' && fileName.length)
+    return <SuccessfullyUploaded fileName={fileName} />;
   return (
     <div className="App">
       <form encType="multipart/form-data" onSubmit={handleSubmit}>
@@ -35,6 +54,6 @@ function App() {
       </form>
     </div>
   );
-}
+};
 
 export default App;
