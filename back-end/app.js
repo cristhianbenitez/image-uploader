@@ -45,4 +45,10 @@ app.post('/image', upload.single('file'), function (req, res) {
   }
 });
 
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' });
+};
+
+app.use(unknownEndpoint);
+
 app.listen(port, () => console.log(`listening at http:localhost:${port}`));
