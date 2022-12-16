@@ -7,12 +7,12 @@ const SuccessfullyUploaded = ({
 }: {
   fileName: string;
 }): JSX.Element => {
-  const { data, isLoading } = useQuery(['image'], async () => {
-    const image = axios.get(`${window.location.href}${fileName}`);
-
-    return image;
-  });
-  return <div>Uploaded Succesfully</div>;
+  return (
+    <div>
+      <img src={`http://localhost:3000/images/${fileName}`} alt="" />
+      <div>Uploaded Succesfully</div>
+    </div>
+  );
 };
 
 const App = (): JSX.Element => {

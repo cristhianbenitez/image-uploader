@@ -1,6 +1,5 @@
 const express = require('express');
 const app = express();
-const port = 3000;
 const cors = require('cors');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
@@ -17,9 +16,6 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage: storage,
-  limits: {
-    fileSize: 2000000
-  },
   fileFilter(req, file, cb) {
     if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
       return cb(new Error('Please upload a valid image file'));
@@ -30,14 +26,14 @@ const upload = multer({
 
 app.use(cors());
 
-app.post('/image', upload.single('file'), function (req, res) {
+app.post('/image', upload.single('image'), function (req, res) {
   if (!req.file) {
-    console.log('No file received');
+    console.log('No image received');
     return res.send({
       success: false
     });
   } else {
-    console.log('file received');
+    console.log('image received');
     return res.send({
       success: true,
       filename: req.file.filename
@@ -51,4 +47,4 @@ const unknownEndpoint = (request, response) => {
 
 app.use(unknownEndpoint);
 
-app.listen(port, () => console.log(`listening at http:localhost:${port}`));
+module.exports = app;
