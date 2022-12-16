@@ -3,6 +3,19 @@ const app = express();
 const cors = require('cors');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
+const mongoose = require('mongoose');
+require('dotenv').config();
+
+const MONGODB_URI = process.env.MONGODB_URI;
+
+mongoose
+  .connect(MONGODB_URI)
+  .then(() => {
+    console.log('connected to MongoDB');
+  })
+  .catch((error) => {
+    console.log('error connection to MongoDB:', error.message);
+  });
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -25,20 +38,51 @@ const upload = multer({
 });
 
 app.use(cors());
+const Images = require('./models/images');
 
-app.post('/image', upload.single('image'), function (req, res) {
+app.post('/image', upload.single('image'), async (req, res) => {
   if (!req.file) {
     console.log('No image received');
+
     return res.send({
       success: false
     });
   } else {
     console.log('image received');
+
+    const image = new Images({
+      _id: new mongoose.Types.ObjectId(),
+      image: req.file.path
+    });
+
+    await image.save();
+
     return res.send({
       success: true,
-      filename: req.file.filename
+      createdProduct: {
+        _id: image._id,
+        request: {
+          type: 'GET',
+          url: 'http://localhost:3000/image/' + image._id
+        }
+      }
     });
   }
+});
+
+// app.get('/image', async (req, res, next) => {
+//   const images = await Images.find().select('_id image').exec();
+
+//   console.log(images);
+// });
+
+app.get('/image/:id', async (req, res, next) => {
+  const id = req.params.id;
+  console.log(id);
+
+  const { image } = await Images.findById(id);
+
+  res.json(image);
 });
 
 const unknownEndpoint = (request, response) => {
