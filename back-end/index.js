@@ -5,5 +5,5 @@ const PORT = 3000;
 const server = http.createServer(app);
 
 server.listen(PORT, () => {
-  logger.info(`Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
