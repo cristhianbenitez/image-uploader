@@ -36,11 +36,12 @@ const upload = multer({
     cb(undefined, true);
   }
 });
-
+app.use('/images', express.static('images'));
 app.use(cors());
+
 const Images = require('./models/images');
 
-app.post('/image', upload.single('image'), async (req, res) => {
+app.post('/images', upload.single('image'), async (req, res) => {
   if (!req.file) {
     console.log('No image received');
 
@@ -63,23 +64,21 @@ app.post('/image', upload.single('image'), async (req, res) => {
         _id: image._id,
         request: {
           type: 'GET',
-          url: 'http://localhost:3000/image/' + image._id
+          url: 'http://localhost:3000/images/' + image._id
         }
       }
     });
   }
 });
 
-// app.get('/image', async (req, res, next) => {
+// app.get('/images', async (req, res, next) => {
 //   const images = await Images.find().select('_id image').exec();
 
 //   console.log(images);
 // });
 
-app.get('/image/:id', async (req, res, next) => {
+app.get('/images/:id', async (req, res, next) => {
   const id = req.params.id;
-  console.log(id);
-
   const { image } = await Images.findById(id);
 
   res.json(image);
