@@ -71,12 +71,6 @@ app.post('/images', upload.single('image'), async (req, res) => {
   }
 });
 
-// app.get('/images', async (req, res, next) => {
-//   const images = await Images.find().select('_id image').exec();
-
-//   console.log(images);
-// });
-
 app.get('/images/:id', async (req, res, next) => {
   const id = req.params.id;
   const { image } = await Images.findById(id);
